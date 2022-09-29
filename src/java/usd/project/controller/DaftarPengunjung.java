@@ -1,0 +1,115 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package usd.project.controller;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import static java.lang.System.out;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import static usd.project.controller.DaftarPengunjungNew.pengunjung;
+import usd.project.dao.PengunjungDao;
+import usd.project.logic.PhotoUtil;
+import usd.project.model.BeanPengunjung;
+import usd.project.logic.PhotoUtilService;
+
+/**
+ *
+ * @author Asus
+ */
+@MultipartConfig(maxFileSize = 16177215)
+public class DaftarPengunjung extends HttpServlet {
+
+    private static final int BUFFER_SIZE = 4096;
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException, ClassNotFoundException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            PhotoUtilService ambilfoto = new PhotoUtil();
+
+            pengunjung.setNamaP(request.getParameter("namaP"));
+            pengunjung.setGender(request.getParameter("gender"));
+            pengunjung.setNoTelpP(request.getParameter("noTelpP"));
+            pengunjung.setFotoP(ambilfoto.ambilFoto(request.getPart("fotoP")));
+            pengunjung.setIdPengunjung(request.getParameter("idPengunjung"));
+            pengunjung.getEmailP();
+            pengunjung.getPasswordP();
+            PengunjungDao pDao = new PengunjungDao();
+            int result = pDao.insert(pengunjung);
+            String forwardJsp = "";
+            if (result > 0) {
+                forwardJsp = "/LoginPengunjungNew.jsp";
+            } else {
+                forwardJsp = "/LoginPengunjungNew.jsp";
+            }
+            RequestDispatcher rd = request.getRequestDispatcher(forwardJsp);
+            rd.forward(request, response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(DaftarPengunjung.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            processRequest(request, response);
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(DaftarPengunjung.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
